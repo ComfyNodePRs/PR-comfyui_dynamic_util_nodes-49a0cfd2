@@ -15,14 +15,14 @@ class LoadImageByPath:
     def INPUT_TYPES(cls) -> dict:  # noqa
         return {
             "required":{
-                "img_pth": ("STRING", {"default": "input/example.png"}),
+                "image_path": ("STRING", {"forceInput": True}),
             }
         }
 
     @classmethod
     def VALIDATE_INPUTS(cls, image_path) -> bool | str: # noqa
         if not os.path.exists(image_path) and not os.path.isfile(image_path):
-            return "Invalid image file: {}".format(image_path)
+            return "Invalid file path: {}".format(image_path)
 
         return True
 
@@ -34,18 +34,20 @@ class LoadImageByPath:
 
         return m.digest().hex()
 
-    def load_image(self, image_path: str) -> tuple[torch.Tensor, torch.Tensor]:
+    def load_image_by_path(self, image_path: str) -> tuple[torch.Tensor, torch.Tensor]:
         img = Image.open(image_path)
         img = ImageOps.exif_transpose(img)
+        bands = img.getbands()
 
         if img.mode == 'I':
             img = img.point(lambda i: i * (1 / 255))
 
         img = img.convert("RGB")
+
         img = np.array(img).astype(np.float32) / 255.0
         img = torch.from_numpy(img)[None,]
 
-        if 'A' in img.getbands():
+        if 'A' in bands:
             mask = np.array(img.getchannel('A')).astype(np.float32) / 255.0
             mask = 1. - torch.from_numpy(mask)
         else:
