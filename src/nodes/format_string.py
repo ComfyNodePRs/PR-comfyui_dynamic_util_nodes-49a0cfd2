@@ -10,8 +10,8 @@ class FormatString:
         return {
             "required":{
                 "string": ("STRING", {"default": "Hello {var}", "forceInput": True}),
+                "val": ("STRING", {"default": "world", "forceInput": True}),
                 "var": ("STRING", {"default": "var"}),
-                "val": ("STRING", {"default": "world"}),
             }
         }
 
@@ -19,4 +19,3 @@ class FormatString:
         result = string.format(**{var: val})
 
         return {"ui": {"text": (result,)}, "result": (result,)}
-
